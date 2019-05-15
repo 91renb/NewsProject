@@ -1,20 +1,28 @@
 package com.renbo.newsproject.splash.activity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.renbo.newsproject.R;
+import com.renbo.newsproject.splash.bean.Action;
 import com.renbo.newsproject.splash.bean.Ads;
-import com.renbo.newsproject.splash.util.Constant;
-import com.renbo.newsproject.splash.util.JsonUtil;
+import com.renbo.newsproject.splash.bean.AdsDetail;
+import com.renbo.newsproject.util.Constant;
+import com.renbo.newsproject.util.JsonUtil;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -70,6 +78,43 @@ public class SplashActivity extends AppCompatActivity {
                     if (null != ads) {
                         // 数据解析成功
                         Log.i("数据解析成功", ads.toString());
+                        List<AdsDetail> list = ads.getAds();
+                        Random random = new Random();
+                        int index = random.nextInt(list.size());
+                        AdsDetail detail = list.get(index);
+                        List<String> res_url = detail.getRes_url();
+                        if (null != res_url) {
+                            String imageUrl = res_url.get(0);
+                            if (!TextUtils.isEmpty(imageUrl)) {
+                                Log.i("显示图片路径：", imageUrl);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // 在主线程中更新UI
+                                        showImage(imageUrl);
+                                    }
+                                });
+
+
+                                // 给图片设置点击事件
+                                adsImageView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Action action = detail.getAction_params();
+                                        String pageUrl = action.getLink_url();
+                                        if (null != action && !TextUtils.isEmpty(pageUrl)) {
+                                            // 跳转新的页面
+                                            Intent intent = new Intent();
+                                            intent.setClass(SplashActivity.this, WebViewActivity.class);
+                                            intent.putExtra(WebViewActivity.PAGE_URL, pageUrl);
+                                            startActivity(intent);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    } else {
+                        Log.i("数据解析失败", null);
                     }
                 } else {
                     // 请求失败
@@ -77,5 +122,9 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void showImage(String imageUrl) {
+        Glide.with(this).load(imageUrl).placeholder(R.drawable.biz_ad_slogan).into(adsImageView);
     }
 }

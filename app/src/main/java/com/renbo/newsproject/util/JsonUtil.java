@@ -1,4 +1,4 @@
-package com.renbo.newsproject.splash.util;
+package com.renbo.newsproject.util;
 
 import android.text.TextUtils;
 
