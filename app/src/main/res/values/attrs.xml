@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--给自定义控件添加属性-->
+    <declare-styleable name="TimeView">
+        <attr name="outer_color" format="color" />
+        <attr name="inner_color" format="color" />
+        <attr name="text" format="string" />
+    </declare-styleable>
+</resources>

@@ -92,6 +92,7 @@ public class SplashActivity extends AppCompatActivity {
                                     public void run() {
                                         // 在主线程中更新UI
                                         showImage(imageUrl);
+
                                     }
                                 });
 
