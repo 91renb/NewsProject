@@ -39,7 +39,7 @@ import okhttp3.Response;
 public class SplashActivity extends AppCompatActivity {
     ImageView adsImageView;
     TimeView timeView;
-    int length = 2 * 1000;
+    int length = 3 * 1000;
     int space = 100;
     int now = 0;
 
@@ -162,7 +162,7 @@ public class SplashActivity extends AppCompatActivity {
     /* 获取广告数据 */
     public void getAds() {
         // 1.创建 OkHttpClient 实例对象
-        OkHttpClient client = new OkHttpClient();
+        final OkHttpClient client = new OkHttpClient();
         // 2.创建 Request 对象
         Request request = new Request.Builder()
                 .url(Constant.ADS_URL)
