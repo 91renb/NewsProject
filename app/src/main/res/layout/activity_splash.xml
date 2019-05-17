@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
@@ -25,6 +26,14 @@
             android:layout_height="match_parent"
             android:id="@+id/ads"
             android:scaleType="fitXY" />
+        <com.renbo.newsproject.splash.TimeView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:outer_color="@android:color/holo_red_dark"
+            app:inner_color="@android:color/darker_gray"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp" />
     </RelativeLayout>
-
 </RelativeLayout>

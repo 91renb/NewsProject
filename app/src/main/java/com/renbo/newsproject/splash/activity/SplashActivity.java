@@ -3,6 +3,8 @@ package com.renbo.newsproject.splash.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -13,7 +15,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.renbo.newsproject.MainActivity;
 import com.renbo.newsproject.R;
+import com.renbo.newsproject.splash.OnTimeClickListener;
+import com.renbo.newsproject.splash.TimeView;
 import com.renbo.newsproject.splash.bean.Action;
 import com.renbo.newsproject.splash.bean.Ads;
 import com.renbo.newsproject.splash.bean.AdsDetail;
@@ -21,6 +26,7 @@ import com.renbo.newsproject.util.Constant;
 import com.renbo.newsproject.util.JsonUtil;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Random;
 
@@ -32,6 +38,12 @@ import okhttp3.Response;
 
 public class SplashActivity extends AppCompatActivity {
     ImageView adsImageView;
+    TimeView timeView;
+    int length = 2 * 1000;
+    int space = 100;
+    int now = 0;
+
+    MyHandler mHandler;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,15 +51,113 @@ public class SplashActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        // 沉浸式，支持Android4.4以上
+        // 沉浸式(全屏显示)，支持Android4.4以上
+        //View decorView = getWindow().getDecorView();
+        //decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE);
 
         setContentView(R.layout.activity_splash);
 
         adsImageView = (ImageView) findViewById(R.id.ads);
+        timeView = findViewById(R.id.time);
+        // 刷新一个控件
+        timeView.setAngle(200);
+        // 按钮点击事件
+        timeView.setListener(new OnTimeClickListener() {
+            @Override
+            public void onClickSkip(View view) {
+                // 移除这个定时任务
+                mHandler.removeCallbacks(refreshTask);
+                gotoMain();
+            }
+        });
 
         getAds();
 
+        // 内存泄漏提示
+//        mHandler = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//                super.handleMessage(msg);
+//                // 接收消息
+//                if (msg.what == 0) {
+//                    int now = msg.arg1;
+//                    if (now <= total) {
+//                        timeView.setProgress(total, now);
+//                    } else {
+//                        // 移除这个定时任务
+//                        mHandler.removeCallbacks(refreshTask);
+//                        gotoMain();
+//                    }
+//                }
+//            }
+//        };
+
+        mHandler = new MyHandler(this);
+        // 执行一个任务
+        mHandler.post(refreshTask);
     }
+
+    // 使用静态内部类切断访问activity，避免内存泄漏
+    static class MyHandler extends Handler {
+        // 弱引用（jvm是无法保证它的存活）
+        WeakReference<SplashActivity> activity;
+        public MyHandler(SplashActivity activity) {
+            this.activity = new WeakReference<SplashActivity>(activity);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            SplashActivity act = activity.get();
+            if (null == act) {
+                return;
+            }
+            int total = act.length / act.space;
+            // 接收消息
+            if (msg.what == 0) {
+                int now = msg.arg1;
+                if (now <= total) {
+                    act.timeView.setProgress(total, now);
+                } else {
+                    // 移除这个定时任务
+                    this.removeCallbacks(act.refreshTask);
+                    act.gotoMain();
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // 移除这个定时任务
+        mHandler.removeCallbacks(refreshTask);
+    }
+
+    private void gotoMain() {
+        // 点击直接进入首页
+        Intent intent = new Intent();
+        intent.setClass(SplashActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    Runnable refreshTask = new Runnable() {
+        @Override
+        public void run() {
+            // 发送消息
+            // 重新新建 message
+            // Message msg = new Message();
+            // 消息池中复用 message
+            Message msg = mHandler.obtainMessage(0);
+            msg.arg1 = now;
+            mHandler.sendMessage(msg);
+
+            // space 毫秒后重新执行这个任务
+            mHandler.postDelayed(this, space);
+            now ++;
+        }
+    };
 
     /* 获取广告数据 */
     public void getAds() {

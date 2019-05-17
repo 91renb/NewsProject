@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.renbo.newsproject.R;
@@ -30,6 +31,8 @@ public class TimeView extends View {
     int excircle_d;
 
     int angle;
+
+    OnTimeClickListener mListener;
 
     public TimeView(Context context) {
         super(context);
@@ -111,5 +114,27 @@ public class TimeView extends View {
         invalidate();
         // 刷新控件(在子线程中刷新)
         //postInvalidate();
+    }
+
+    // 设置按钮点击时高亮效果
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // 手指按下去时
+            setAlpha(0.3f);
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            // 手指抬起来时
+            setAlpha(1.0f);
+            // 执行点击事件的内容
+            if (null != mListener) {
+                mListener.onClickSkip(this);
+            }
+        }
+
+        return true;
+    }
+
+    public void setListener(OnTimeClickListener listener) {
+        this.mListener = listener;
     }
 }
