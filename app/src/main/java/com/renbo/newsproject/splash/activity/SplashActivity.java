@@ -25,6 +25,8 @@ import com.renbo.newsproject.splash.bean.AdsDetail;
 import com.renbo.newsproject.util.Constant;
 import com.renbo.newsproject.util.JsonUtil;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -192,37 +194,15 @@ public class SplashActivity extends AppCompatActivity {
                         Random random = new Random();
                         int index = random.nextInt(list.size());
                         AdsDetail detail = list.get(index);
-                        List<String> res_url = detail.getRes_url();
-                        if (null != res_url) {
-                            String imageUrl = res_url.get(0);
-                            if (!TextUtils.isEmpty(imageUrl)) {
-                                Log.i("显示图片路径：", imageUrl);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // 在主线程中更新UI
-                                        showImage(imageUrl);
-
-                                    }
-                                });
-
-
-                                // 给图片设置点击事件
-                                adsImageView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Action action = detail.getAction_params();
-                                        String pageUrl = action.getLink_url();
-                                        if (null != action && !TextUtils.isEmpty(pageUrl)) {
-                                            // 跳转新的页面
-                                            Intent intent = new Intent();
-                                            intent.setClass(SplashActivity.this, WebViewActivity.class);
-                                            intent.putExtra(WebViewActivity.PAGE_URL, pageUrl);
-                                            startActivity(intent);
-                                        }
-                                    }
-                                });
-                            }
+                        if (null != detail) {
+                            // 切换到主线程
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // 在主线程中更新UI
+                                    showImage(detail);
+                                }
+                            });
                         }
                     } else {
                         Log.i("数据解析失败", null);
@@ -235,7 +215,35 @@ public class SplashActivity extends AppCompatActivity {
         });
     }
 
-    public void showImage(String imageUrl) {
-        Glide.with(this).load(imageUrl).placeholder(R.drawable.biz_ad_slogan).into(adsImageView);
+    public void showImage(AdsDetail detail) {
+        List<String> res_url = detail.getRes_url();
+        if (null != res_url) {
+            String imageUrl = res_url.get(0);
+            if (!TextUtils.isEmpty(imageUrl)) {
+
+                // 显示网络图片
+                Glide.with(this).load(imageUrl).into(adsImageView);
+            }
+        }
+
+        Action action = detail.getAction_params();
+        if (null != action) {
+            String pageUrl = action.getLink_url();
+            if (!TextUtils.isEmpty(pageUrl)) {
+
+                // 给图片设置点击事件
+                adsImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 跳转新的页面
+                        Intent intent = new Intent();
+                        intent.setClass(SplashActivity.this, WebViewActivity.class);
+                        intent.putExtra(WebViewActivity.PAGE_URL, pageUrl);
+                        startActivity(intent);
+                    }
+                });
+
+            }
+        }
     }
 }
