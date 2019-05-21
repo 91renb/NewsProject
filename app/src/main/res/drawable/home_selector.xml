@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--选中的状态（每个view都有）-->
+    <item android:state_selected="true" android:drawable="@drawable/biz_navigation_tab_news_selected"/>
+    <!--按压高亮的状态-->
+    <item android:state_pressed="true" android:drawable="@drawable/biz_navigation_tab_news"/>
+    <!--默认状态-->
+    <item android:drawable="@drawable/biz_navigation_tab_news"/>
+</selector>

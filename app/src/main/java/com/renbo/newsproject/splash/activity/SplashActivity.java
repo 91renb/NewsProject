@@ -59,6 +59,13 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_splash);
 
+        initView();
+
+        getAds();
+    }
+
+    /*初始化各个控件*/
+    public void initView() {
         adsImageView = (ImageView) findViewById(R.id.ads);
         timeView = findViewById(R.id.time);
         // 刷新一个控件
@@ -72,8 +79,6 @@ public class SplashActivity extends AppCompatActivity {
                 gotoMain();
             }
         });
-
-        getAds();
 
         // 内存泄漏提示
 //        mHandler = new Handler() {
@@ -98,6 +103,7 @@ public class SplashActivity extends AppCompatActivity {
         // 执行一个任务
         mHandler.post(refreshTask);
     }
+
 
     // 使用静态内部类切断访问activity，避免内存泄漏
     static class MyHandler extends Handler {
