@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         // 1.找到 FragmentTabHost
         FragmentTabHost tabHost = (FragmentTabHost)findViewById(R.id.tab_host);
         // 2.设置绑定fragment显示的容器（containerId：是将要显示的Fragment容器）
